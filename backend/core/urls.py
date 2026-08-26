@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from django.conf.urls.static import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
@@ -7,6 +7,8 @@ from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/users/", include("users.urls")),
+    path("api/posts/", include("posts.urls")),
 ]
 
 # Servir estáticos e mídias em desenvolvimento
