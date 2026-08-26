@@ -4,18 +4,18 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, min_length=6)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email' 'password')
+        fields = ('id', 'username', 'email', 'password')
 
     def create(self, validated_data):
         # o create_user cuida da aplicação do hash da senha automaticamente
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
-            password=validated_data['password']
+            password=validated_data['password'],
         )
         return user
 
