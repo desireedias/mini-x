@@ -18,6 +18,7 @@ class Post(models.Model):
         'self',
         on_delete=models.CASCADE,
         null=True,
+        blank=True,
         related_name='replies'
     )
 
