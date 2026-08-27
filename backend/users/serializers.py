@@ -21,8 +21,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    followers_count = serializers.IntegerField(source='followers_count', read_only=True)
-    following_count = serializers.IntegerField(source='following_count', read_only=True)
+    followers_count = serializers.IntegerField(source='followers.count', read_only=True)
+    following_count = serializers.IntegerField(source='following.count', read_only=True)
 
     class Meta:
         model = User
