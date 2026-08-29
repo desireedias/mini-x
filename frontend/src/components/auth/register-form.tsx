@@ -73,6 +73,7 @@ export function RegisterForm() {
       },
     );
   }
+
   return (
     <div className="w-full max-w-sm space-y-4">
       <Button

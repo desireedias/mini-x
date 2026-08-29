@@ -14,6 +14,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { signIn } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const loginSchema = z.object({
   email: z.string().email("Insira um e-mail válido"),
@@ -23,6 +27,8 @@ const loginSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
+  const router = useRouter();
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -31,8 +37,21 @@ export function LoginForm() {
     },
   });
 
-  async function onSubmit(data: LoginFormValues) {
-    console.log("Dados de Login:", data);
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    await signIn.email(
+      {
+        email: values.email,
+        password: values.password,
+      },
+      {
+        onSuccess: () => {
+          router.push("/feed");
+        },
+        onError: () => {
+          toast.error("E-mail ou senha inválidos");
+        },
+      },
+    );
   }
 
   return (
@@ -108,10 +127,17 @@ export function LoginForm() {
             disabled={form.formState.isSubmitting}
             className="w-full rounded-full font-bold"
           >
-            {form.formState.isSubmitting ? "Entrando..." : "Entrar"}
+            {form.formState.isSubmitting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              "Entrar"
+            )}
           </Button>
         </form>
       </Form>
     </div>
   );
+}
+function userRouter() {
+  throw new Error("Function not implemented.");
 }
