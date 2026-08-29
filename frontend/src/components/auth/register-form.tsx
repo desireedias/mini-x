@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { signUp } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const registerSchema = z
   .object({
@@ -66,7 +67,12 @@ export function RegisterForm() {
           router.push("/feed");
         },
         onError: (ctx) => {
+          if (ctx.error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
+            toast.error("Este e-mail já está cadastrado");
+            return;
+          }
           form.setError("root", {
+            type: "manual",
             message: ctx.error.message || "Ocorreu um erro ao criar a conta.",
           });
         },
