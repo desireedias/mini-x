@@ -1,10 +1,12 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group
-from django.contrib.auth.admin import UserAdmin
 from .models import User
 
-admin.site.unregister(Group)
-
-admin.site.register(User, UserAdmin)
-
-# Register your models here.
+@admin.register(User)
+class CustomUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'name', 'email', 'created_at')
+    search_fields = ('username', 'name', 'email')
+    ordering = ('-created_at',)
+    
+    fieldsets = (
+        (None, {'fields': ('username', 'email', 'name', 'bio', 'avatar', 'banner')}),
+    )
