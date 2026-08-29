@@ -8,10 +8,6 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-bold">Criar conta</h1>
-
-          <p className="text-sm text-muted-foreground">
-            Crie sua conta para começar a usar o Mini X.
-          </p>
         </div>
 
         <RegisterForm />

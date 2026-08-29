@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -14,15 +15,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { signUp } from "@/lib/auth-client";
+import { Loader2 } from "lucide-react";
 
 const registerSchema = z
   .object({
     name: z.string().min(2, "O nome deve ter pelo menos 2 caracteres"),
+    username: z
+      .string()
+      .min(3, "O username deve ter pelo menos 3 caracteres")
+      .regex(/^[a-zA-Z0-9_]+$/, "Apenas letras, números e underlines"),
     email: z.string().email("Insira um e-mail válido"),
-    password: z.string().min(6, "A senha deve ter no mínimo 6 caracteres"),
+    password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
     confirmPassword: z
       .string()
-      .min(6, "A confirmação deve ter no mínimo 6 caracteres"),
+      .min(8, "A confirmação deve ter no mínimo 8 caracteres"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "As senhas não coincidem",
@@ -32,19 +39,40 @@ const registerSchema = z
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export function RegisterForm() {
+  const router = useRouter();
+
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "",
+      username: "",
     },
   });
 
   async function onSubmit(data: RegisterFormValues) {
-    console.log("Dados de Cadastro:", data);
+    await signUp.email(
+      {
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        username: data.username,
+        callbackURL: "/feed",
+      },
+      {
+        onSuccess: () => {
+          router.push("/feed");
+        },
+        onError: (ctx) => {
+          form.setError("root", {
+            message: ctx.error.message || "Ocorreu um erro ao criar a conta.",
+          });
+        },
+      },
+    );
   }
-
   return (
     <div className="w-full max-w-sm space-y-4">
       <Button
@@ -85,6 +113,24 @@ export function RegisterForm() {
           />
           <FormField
             control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="text"
+                    placeholder="@seu_usuario"
+                    autoComplete="username"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
@@ -114,7 +160,6 @@ export function RegisterForm() {
                   <Input
                     {...field}
                     type="password"
-                    placeholder="••••••••"
                     autoComplete="new-password"
                   />
                 </FormControl>
@@ -134,7 +179,6 @@ export function RegisterForm() {
                   <Input
                     {...field}
                     type="password"
-                    placeholder="••••••••"
                     autoComplete="new-password"
                   />
                 </FormControl>
@@ -143,13 +187,16 @@ export function RegisterForm() {
               </FormItem>
             )}
           />
-          x
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
             className="w-full rounded-full font-bold"
           >
-            {form.formState.isSubmitting ? "Cadastrando..." : "Cadastrar"}
+            {form.formState.isSubmitting ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              "Criar conta"
+            )}
           </Button>
         </form>
       </Form>
