@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import dj_database_url
 import dotenv
 
 dotenv.load_dotenv()
@@ -80,15 +81,14 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-    }
+    "default": dj_database_url.config(
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
+
+# Permite conexões da Vercel no MVP
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Password validation
