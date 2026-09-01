@@ -7,7 +7,8 @@ class Post(models.Model):
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='posts'
+        related_name='posts',
+        to_field='id'
     )
 
     content = models.TextField(max_length=280)

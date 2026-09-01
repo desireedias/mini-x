@@ -1,3 +1,4 @@
+from django.db import connection
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -7,22 +8,62 @@ from .models import Post
 from .serializers import PostSerializer
 
 
-# Create your views here.
-#GET lista posts principais (Feed) | POST: cria post ou reposta
+from django.db.models import Q
+from rest_framework import generics, permissions
+
 class PostListCreateView(generics.ListCreateAPIView):
+    serializer_class = PostSerializer
+    # 1. Exige autenticação obrigatória para que request.user nunca venha como AnonymousUser no Feed
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Post.objects.filter(parent__isnull=True).select_related('author')
+        user = self.request.user
+        user_id = str(user.id)
+
+        # 2. Busca os IDs de quem o usuário logado segue via SQL direto
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT to_user_id FROM users_user_following WHERE from_user_id = %s",
+                [user_id]
+            )
+            following_ids = [row[0] for row in cursor.fetchall()]
+
+        # 3. Adiciona o próprio usuário à lista de permissão de visualização
+        allowed_ids = following_ids + [user_id]
+
+        # 4. Filtra garantindo que só os autores seguidos (ou o próprio usuário) retornem
+        return queryset.filter(author__id__in=allowed_ids)
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        #traz apenas os posts principais no feed(onde parent é nulo)
-        return Post.objects.filter(parent__isnull=True).select_related('author')
+        queryset = Post.objects.filter(parent__isnull=True).select_related('author')
+        user = self.request.user
+
+        if user.is_authenticated:
+            # Busca os IDs de quem o usuário atual segue
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT to_user_id FROM users_user_following WHERE from_user_id = %s",
+                    [str(user.id)]
+                )
+                following_ids = [row[0] for row in cursor.fetchall()]
+
+            # Inclui o ID do próprio usuário no filtro
+            following_ids.append(str(user.id))
+
+            # Filtra os posts apenas dessa lista de usuários
+            return queryset.filter(author_id__in=following_ids)
+
+        return queryset
 
     def perform_create(self, serializer):
-        #associa automaticamente o usuario logado ao autor
         serializer.save(author=self.request.user)
 
-
-#GET: detalha post especifico e traz a lista de suas respostas
 class PostDetailView(generics.RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -32,15 +73,14 @@ class PostDetailView(generics.RetrieveAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
 
-        #serializa as respostas associadas a este post
+     
         replies = instance.replies.all().select_related('author')
-        replies_serializer = self.get_serializer(replies, many=True)
+        replies_serializer = self.get_serializer(replies, many=True, context={'request': request})
 
         data = serializer.data
         data['replies'] = replies_serializer.data
         return Response(data)
 
-#POST: toogle do like (adiciona se curtiu, remove se já curtiu)
 
 class PostLikeToggleView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

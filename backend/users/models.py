@@ -9,6 +9,9 @@ class User(AbstractBaseUser):
     
 
     password = models.CharField(max_length=255)
+
+    last_login = None
+    password = None
     
     bio = models.TextField(max_length=160, blank=True, null=True)
     avatar = models.CharField(max_length=500, blank=True, null=True)
@@ -18,7 +21,8 @@ class User(AbstractBaseUser):
         'self',
         symmetrical=False,
         related_name='followers',
-        blank=True
+        blank=True,
+        db_table='users_user_following',
     )
 
     created_at = models.DateTimeField(db_column='createdAt', auto_now_add=True)

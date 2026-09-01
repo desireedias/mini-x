@@ -4,7 +4,6 @@ from .models import Post
 
 User = get_user_model()
 
-#serializer simplificadodo Autor para aninhar no Post
 class PostAuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -34,7 +33,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_is_liked(self, obj):
             request = self.context.get('request')
-            #verifica se o usuario esta autenticado
+
             if request and request.user.is_authenticated:
                 return obj.likes.filter(id=request.user.id).exists()
             return False

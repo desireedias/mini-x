@@ -11,7 +11,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'password')
 
     def create(self, validated_data):
-        # o create_user cuida da aplicação do hash da senha automaticamente
+      
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
@@ -21,9 +21,23 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    followers_count = serializers.IntegerField(source='followers.count', read_only=True)
-    following_count = serializers.IntegerField(source='following.count', read_only=True)
+    followers_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'bio', 'avatar', 'banner', 'followers_count', 'following_count')
+        fields = ('id', 'name', 'username', 'email', 'bio', 'avatar', 'banner', 'followers_count', 'following_count')
+
+    def get_followers_count(self, obj):
+       
+        try:
+            return obj.followers.count()
+        except Exception:
+            return 0
+
+    def get_following_count(self, obj):
+       
+        try:
+            return obj.following.count()
+        except Exception:
+            return 0
