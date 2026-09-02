@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { API_URL } from "@/lib/api";
 
 interface UserListItem {
   id: string;
@@ -36,9 +37,7 @@ export function FollowersModal({
       setUserList([]);
 
       try {
-        const res = await fetch(
-          `http://localhost:8000/api/users/${username}/${type}/`,
-        );
+        const res = await fetch(`${API_URL}/api/users/${username}/${type}/`);
         if (res.ok) {
           const data = await res.json();
           setUserList(data);

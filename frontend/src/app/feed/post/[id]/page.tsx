@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
 import { PostItem, PostData } from "@/app/feed/_components/post-item";
+import { API_URL } from "@/lib/api";
 
 interface PostDetail extends PostData {
   replies: PostData[];
@@ -28,7 +29,7 @@ export default function PostDetailPage({
 
   const fetchPostDetail = async () => {
     try {
-      const res = await fetch(`http://localhost:8000/api/posts/${id}/`);
+      const res = await fetch(`${API_URL}/api/posts/${id}/`);
       if (res.ok) {
         const data = await res.json();
         setPost(data);
@@ -55,7 +56,7 @@ export default function PostDetailPage({
     setIsSubmitting(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/posts/", {
+      const res = await fetch(`${API_URL}/api/posts/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

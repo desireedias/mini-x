@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { API_URL } from "@/lib/api";
 
 export const PostBox = () => {
   const [content, setContent] = useState("");
@@ -31,7 +32,7 @@ export const PostBox = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:8000/api/posts/", {
+      const response = await fetch(`${API_URL}/api/posts/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { API_URL } from "@/lib/api";
 
 interface SuggestedUser {
   id: string;
@@ -22,7 +23,7 @@ export function SuggestedUsers() {
     if (!token) return;
 
     try {
-      const res = await fetch("http://localhost:8000/api/users/suggested/", {
+      const res = await fetch(`${API_URL}/api/users/suggested/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {

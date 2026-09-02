@@ -9,6 +9,7 @@ import { authClient } from "@/lib/auth-client";
 import { PostItem, PostData } from "@/app/feed/_components/post-item";
 import { FollowersModal } from "@/app/feed/_components/followers-modal"; // 👈 Importação
 import { User } from "lucide-react";
+import { API_URL } from "@/lib/api";
 
 interface UserProfile {
   id: string;
@@ -43,21 +44,18 @@ export default function ProfilePage({
   const [isSaving, setIsSaving] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
 
-  // Estado simples para controlar a aba do modal
   const [activeTab, setActiveTab] = useState<"followers" | "following" | null>(
     null,
   );
 
   const fetchProfile = async () => {
     try {
-      // 1. Aguarda a sessão ser obtida antes de disparar o fetch
       const session = await authClient.getSession();
       const token = session?.data?.session?.token;
 
       console.log("DEBUG FRONT -> Token obtido da sessão:", token);
 
-      // 2. Envia o token de autorização se ele existir
-      const res = await fetch(`http://localhost:8000/api/users/${username}/`, {
+      const res = await fetch(`${API_URL}/api/users/${username}/`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         cache: "no-store",
       });
@@ -79,7 +77,6 @@ export default function ProfilePage({
         setAvatarUrl(data.avatar || "");
         setBannerUrl(data.banner || "");
 
-        // 3. Sincroniza o estado com a resposta vinda do backend
         setIsFollowing(Boolean(data.is_following));
       }
     } catch (error) {
@@ -110,7 +107,7 @@ export default function ProfilePage({
 
     try {
       const res = await fetch(
-        `http://localhost:8000/api/users/${profile.username}/follow/`,
+        `${API_URL}/api/users/${profile.username}/follow/`,
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -144,7 +141,7 @@ export default function ProfilePage({
     if (newPassword.trim()) payload.password = newPassword;
 
     try {
-      const res = await fetch(`http://localhost:8000/api/users/me/`, {
+      const res = await fetch(`${API_URL}/api/users/me/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

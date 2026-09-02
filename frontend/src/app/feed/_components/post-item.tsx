@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { API_URL } from "@/lib/api";
 import { authClient } from "@/lib/auth-client";
 import { Heart, MessageCircle, User } from "lucide-react";
 import Link from "next/link";
@@ -41,16 +42,13 @@ export const PostItem = ({ post }: { post: PostData }) => {
     setLikesCount((prev) => (previousLiked ? prev - 1 : prev + 1));
 
     try {
-      const res = await fetch(
-        `http://localhost:8000/api/posts/${post.id}/like/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await fetch(`${API_URL}/api/posts/${post.id}/like/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       if (res.ok) {
         const data = await res.json();

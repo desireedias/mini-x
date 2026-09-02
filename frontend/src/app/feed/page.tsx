@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { PostBox } from "./_components/post-box";
 import { FeedList } from "./_components/feed-list";
+import { API_URL } from "@/lib/api";
 
 async function getPosts() {
   try {
@@ -21,7 +22,7 @@ async function getPosts() {
       headers["Authorization"] = `Bearer ${cleanToken}`;
     }
 
-    const res = await fetch("http://localhost:8000/api/posts/", {
+    const res = await fetch(`${API_URL}/api/posts/`, {
       headers,
       cache: "no-store",
     });
