@@ -212,15 +212,22 @@ class SuggestUsersView(APIView):
 
     def get(self, request):
         user = request.user
+        following_ids = []
 
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT to_user_id FROM users_user_following WHERE from_user_id = %s",
-                [str(user.id)]
-            )
-            following_ids = [str(row[0]) for row in cursor.fetchall()]
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT to_user_id FROM users_user_following WHERE from_user_id = %s",
+                    [str(user.id)]
+                )
+                following_ids = [str(row[0]) for row in cursor.fetchall()]
+        except Exception as e:
+            following_ids = []
 
         suggested_users = User.objects.exclude(id=str(user.id)).exclude(id__in=following_ids)[:5]
+
+        if not suggested_users.exists():
+            suggested_users = User.objects.exclude(id=str(user.id))[:5]
 
         serializer = UserProfileSerializer(suggested_users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
