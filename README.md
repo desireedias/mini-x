@@ -102,4 +102,37 @@ python manage.py runserver
 | `GET` | `/api/users/<username>/` | Detalhes do perfil e contador |
 
 
+## ⚙️ Variáveis de Ambiente
+
+O projeto é estruturado em monorepo. Crie um arquivo `.env` na **raiz do projeto** para o desenvolvimento local:
+
+### `.env` (Raiz do Monorepo)
+
+```env
+# Configurações do Django
+SECRET_KEY=sua_chave_secreta_aqui
+DEBUG=True
+
+# Conexão unificada com o PostgreSQL local
+DATABASE_URL="postgresql://postgres:postgres@localhost:5433/minix_db"
+
+# Variáveis individuais do Banco
+DB_NAME=minix_db
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_HOST=localhost
+DB_PORT=5433
+```
+
+### `.env` (Dentro da pasta frontend/)
+
+```env
+NEXT_PUBLIC_API_URL="[http://127.0.0.1:8000](http://127.0.0.1:8000)"
+BETTER_AUTH_URL="[http://127.0.0.1:8000](http://127.0.0.1:8000)"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+```
+
+
+
 
