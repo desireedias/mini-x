@@ -7,13 +7,11 @@ async function getPosts() {
   try {
     const cookieStore = await cookies();
 
-    // 1. Pega o valor bruto do cookie
     const rawToken =
       cookieStore.get("better-auth.session_token")?.value ||
       cookieStore.get("__Secure-better-auth.session_token")?.value ||
       cookieStore.get("session_token")?.value;
 
-    // 2. Remove a assinatura após o ponto (se existir) para enviar apenas o token puro
     const cleanToken = rawToken ? rawToken.split(".")[0] : null;
 
     const headers: Record<string, string> = {};
