@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
-from backend.posts.permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly
 from .models import Post
 from .serializers import PostSerializer
 

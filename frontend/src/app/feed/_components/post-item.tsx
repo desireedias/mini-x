@@ -31,12 +31,18 @@ export const PostItem = ({ post }: { post: PostData }) => {
   useEffect(() => {
     async function fetchUser() {
       const sessionData = await authClient.getSession();
-      if (sessionData?.data?.user?.name) {
-        setCurrentUsername(sessionData.data.user.name);
+      if (sessionData?.data?.user?.username) {
+        setCurrentUsername(sessionData.data.user.username);
       }
     }
     fetchUser();
   }, []);
+
+  console.log({
+    postAuthor: post.author.username,
+    currentUsername: currentUsername,
+    isAuthor: currentUsername === post.author.username,
+  });
 
   const handleToggleLike = async () => {
     const previousLiked = isLiked;

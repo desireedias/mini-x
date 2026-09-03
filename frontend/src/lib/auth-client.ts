@@ -3,7 +3,7 @@ import { createAuthClient } from "better-auth/react";
 import { auth } from "./auth";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://127.0.0.1:8000",
   plugins: [inferAdditionalFields<typeof auth>()],
 });
 

@@ -3,13 +3,17 @@ import os
 import dj_database_url
 import dotenv
 
-# Carrega variáveis locais se existirem
+# Carrega variáveis de ambiente (.env)
 dotenv.load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+ROOT_DIR = BASE_DIR.parent
+dotenv.load_dotenv(ROOT_DIR / '.env')
+
 ENV_PATH = BASE_DIR.parent / '.env'
-dotenv.load_dotenv(dotenv_path=ENV_PATH)
+if ENV_PATH.exists():
+    dotenv.load_dotenv(dotenv_path=ENV_PATH)
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -40,7 +44,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # ⚠️ Necessário para servir arquivos estáticos no Render
+    "whitenoise.middleware.WhiteNoiseMiddleware",  
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -49,8 +53,19 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# Configurações de CORS
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 ROOT_URLCONF = "core.urls"
 
@@ -72,7 +87,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "core.wsgi.application"
 
 
-# Database
 DATABASE_URL = os.getenv('DATABASE_URL')
 
 if DATABASE_URL:
@@ -84,15 +98,14 @@ if DATABASE_URL:
         )
     }
 else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+ DATABASES = {
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+    )
+}
 
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -116,13 +129,19 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
-# Email
 MAILERS = {
     "default": {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
@@ -131,12 +150,11 @@ MAILERS = {
 
 AUTH_USER_MODEL = "users.User"
 
-# Configuração de upload de arquivos (Imagens, etc.)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'users.authentication.BetterAuthAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "users.authentication.BetterAuthAuthentication",
     ),
 }
